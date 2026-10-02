@@ -1,18 +1,16 @@
 package com.leaden1.volumediagnostic;
 
-import android.content.ComponentName;
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
+import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
+import android.media.session.PlaybackState;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.widget.Button;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
-    private TextView statusText;
     private TextView session;
     private MediaSessionManager media;
 
@@ -20,37 +18,39 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        TextView tv = new TextView(this);
-        tv.setText("LEADEN1 VOLUME DIAGNOSTIC V5");
-        setContentView(tv);
+        session = new TextView(this);
+        session.setText("LEADEN1 VOLUME DIAGNOSTIC V5 - INICIANDO...");
+        session.setPadding(32, 64, 32, 64);
+        session.setTextSize(16f);
+        setContentView(session);
 
-        media = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
+        media = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
         updateSession();
     }
 
     void updateSession() {
         if (session == null) return;
         try {
-            List<android.media.session.MediaController> l = media.getActiveSessions(null);
+            List<MediaController> l = media.getActiveSessions(null);
             if (l == null || l.isEmpty()) {
-                session.setText("MEDIA SESSION: —");
+                session.setText("LEADEN1 VOLUME DIAGNOSTIC V5\n\nMEDIA SESSION: —");
                 return;
             }
-            android.media.session.MediaController c = l.get(0);
-            android.media.session.PlaybackState p = c.getPlaybackState();
-            session.setText("MEDIA SESSION: " + c.getPackageName() + " | ESTADO: " + (p == null ? "—" : state(p.getState())));
+            MediaController c = l.get(0);
+            PlaybackState p = c.getPlaybackState();
+            session.setText("LEADEN1 VOLUME DIAGNOSTIC V5\n\nMEDIA SESSION: " + c.getPackageName() + "\nESTADO: " + (p == null ? "—" : state(p.getState())));
         } catch (SecurityException e) {
-            session.setText("MEDIA SESSION: ACCESO NO DISPONIBLE");
+            session.setText("LEADEN1 VOLUME DIAGNOSTIC V5\n\nMEDIA SESSION: ACCESO NO DISPONIBLE (Se requiere permiso de notificaciones)");
         } catch (Exception e) {
-            session.setText("MEDIA SESSION: ERROR " + e.getClass().getSimpleName());
+            session.setText("LEADEN1 VOLUME DIAGNOSTIC V5\n\nMEDIA SESSION: ERROR " + e.getClass().getSimpleName());
         }
     }
 
     private String state(int state) {
         switch (state) {
-            case android.media.session.PlaybackState.STATE_PLAYING: return "PLAYING";
-            case android.media.session.PlaybackState.STATE_PAUSED: return "PAUSED";
-            case android.media.session.PlaybackState.STATE_STOPPED: return "STOPPED";
+            case PlaybackState.STATE_PLAYING: return "PLAYING";
+            case PlaybackState.STATE_PAUSED: return "PAUSED";
+            case PlaybackState.STATE_STOPPED: return "STOPPED";
             default: return "OTRO (" + state + ")";
         }
     }
