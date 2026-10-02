@@ -1,4 +1,4 @@
-name: Build LEADEN1 Volume Diagnostic V5
+name: Build LEADEN1 Android Bridge V5
 
 on:
   workflow_dispatch:
